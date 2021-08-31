@@ -47,7 +47,8 @@ router.get('/cursos', loginAuth, async (request, response) => {
 
     var cursos = await database('cursos')
                         .where('curso_professor', idString)
-                            .select('*');
+                            .select('*')
+                                .orderBy('curso_id', 'desc');
 
     if (cursos) {
         return response.json(cursos);
@@ -107,6 +108,27 @@ router.delete('/cursos/delete/:curso_id', loginAuth, async (request, response) =
         return response.json('Curso deletado');
     } else {
         return response.json('Erro ao deletar curso!');
+    }
+});
+
+router.get('/cursos/search', loginAuth, async (request, response) => {
+    var { curso_codigo, curso_nome } = request.body;
+
+    var userId = request.session.user.id;
+
+    var idString = JSON.stringify(userId);
+
+    var cursos = await database('cursos')
+                        .where('curso_codigo', 'like', `%${ curso_codigo }%`)
+                        .andWhere('curso_nome', 'like', `%${ curso_nome }%`)
+                        .where('curso_professor', idString)
+                            .select('*')
+                                .orderBy('curso_id', 'desc');
+
+    if (cursos) {
+        return response.json(cursos);
+    } else {
+        return response.json('Erro ao listar cursos!');
     }
 });
 

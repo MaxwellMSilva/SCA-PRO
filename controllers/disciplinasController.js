@@ -47,7 +47,8 @@ router.get('/disciplinas', loginAuth, async (request, response) => {
 
     var disciplinas = await database('disciplinas')
                                 .where('disciplina_professor', idString)
-                                    .select('*');
+                                    .select('*')
+                                        .orderBy('disciplina_id', 'desc');
 
     if (disciplinas) {
         return response.json(disciplinas);
@@ -107,6 +108,27 @@ router.delete('/disciplinas/delete/:disciplina_id', loginAuth, async (request, r
         return response.json('Disciplina atualizada');
     } else {
         return response.json('Erro ao deletar disciplina!');
+    }
+});
+
+router.get('/disciplinas/search', loginAuth, async (request, response) => {
+    var { disciplina_codigo, disciplina_nome } = request.body;
+
+    var userId = request.session.user.id;
+
+    var idString = JSON.stringify(userId);
+
+    var disciplinas = await database('disciplinas')
+                                .where('disciplina_codigo','like', `%${ disciplina_codigo }%`)
+                                .andWhere('disciplina_nome','like', `%${ disciplina_nome }%`)
+                                .andWhere('disciplina_professor', idString)
+                                    .select('*')
+                                        .orderBy('disciplina_id', 'desc');
+
+    if (disciplinas) {
+        return response.json(disciplinas);
+    } else {
+        return response.json('Erro ao listar disciplinas!');
     }
 });
 

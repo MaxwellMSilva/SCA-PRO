@@ -75,7 +75,8 @@ router.get('/alunos', loginAuth, async (request, response) => {
 
     var alunos = await database('alunos')
                         .where('aluno_professor', idString)
-                            .select('*');
+                            .select('*')
+                                .orderBy('aluno_id', 'desc');
 
     if (alunos) {
         return response.json(alunos);
@@ -85,7 +86,6 @@ router.get('/alunos', loginAuth, async (request, response) => {
 });
 
 // router.put('/alunos/update/:aluno_id', loginAuth, async (request, response) => {
-    
 // });
 
 router.delete('/alunos/delete/:aluno_id', loginAuth, async (request, response) => {
@@ -108,6 +108,27 @@ router.delete('/alunos/delete/:aluno_id', loginAuth, async (request, response) =
         return response.json('Aluno deletado');
     } else {
         return response.json('Erro ao deletar aluno!');
+    }
+});
+
+router.get('/alunos/search', loginAuth, async (request, response) => {
+    var { aluno_matricula, aluno_nome } = request.body;
+
+    var userId = request.session.user.id;
+
+    var idString = JSON.stringify(userId);
+
+    var alunos = await database('alunos')
+                        .where('aluno_matricula', 'like', `%${ aluno_matricula }%`)
+                        .andWhere('aluno_nome', 'like', `%${ aluno_nome }%`)
+                        .andWhere('aluno_professor', idString)
+                            .select('*')
+                                .orderBy('aluno_id', 'desc');
+
+    if (alunos) {
+        return response.json(alunos);
+    } else {
+        return response.json('Erro ao listar alunos!');
     }
 });
 
