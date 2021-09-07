@@ -57,36 +57,98 @@ router.get('/disciplinas', loginAuth, async (request, response) => {
     }
 });
 
-// router.put('/disciplinas/update/:disciplina_id', loginAuth, async (request, response) => {
-//     var { disciplina_id } = request.params;
-//     var { disciplina_codigo, disciplina_nome } = request.body;
+// Código da DISCIPLINA //
+router.put('/disciplinas/updateCodigo/:disciplina_id', loginAuth, async (request, response) => {
+    var { disciplina_id } = request.params;
+    var { disciplina_codigo } = request.body;
 
-//     var userId = request.session.user.id;
+    var userId = request.session.user.id;
 
-//     var idString = JSON.stringify(userId);
+    var idString = JSON.stringify(userId);
 
-//     if (isNaN(curso_id)) {
-//         return response.json('O ID da disciplina precisa ser um numeral!');
-//     } 
+    if (isNaN(disciplina_id)) {
+        return response.json('O ID da disciplina precisa ser um numeral!');
+    } 
+    
+    if (isNaN(disciplina_codigo)) {
+        return response.json('O código da disciplina precisa ser um numeral!');
+    }
 
-//     if (isNaN(disciplina_codigo)) {
-//         return response.json('O código da disciplina precisa ser um numeral!');
-//     }
+    var disciplinaId = await database('disciplinas')
+                                .where('disciplina_id', disciplina_id)    
+                                .andWhere('disciplina_professor', idString)
+                                    .first('disciplina_id');
+                                
+    if (disciplinaId == null) {
+        return response.json('O ID da disciplina não existe!');
+    }
 
-//     var result = await database('disciplinas')
-//                         .where('disciplina_professor', idString)
-//                         .andWhere('disciplina_id', disciplina_id)
-//                             .update({
-//                                 disciplina_codigo: disciplina_codigo,
-//                                 disciplina_nome: disciplina_nome,
-//                             });
+    var disciplinaCodigo = await database('disciplinas')
+                                    .where('disciplina_codigo', disciplina_codigo)
+                                    .andWhere('disciplina_professor', idString)
+                                        .first('disciplina_codigo');
 
-//     if (result) {
-//         return response.json('Disciplina atualizado');
-//     } else {
-//         return response.json('Erro ao atualizar disciplina!');
-//     }
-// });
+    if (disciplina_codigo != '') {
+        if (disciplinaCodigo == null) {
+            var result = await database('disciplinas')
+                                .where('disciplina_id', disciplina_id)
+                                .andWhere('disciplina_professor', idString)
+                                    .update({
+                                        disciplina_codigo: disciplina_codigo,
+                                    });
+            
+            if (result) {
+                return response.json('Código da disciplina atualizado');
+            } else {
+                return response.json('Erro ao atualizar código da disciplina!');
+            } 
+        } else {
+            return response.json('Código da disciplina já está registrado!');
+        }
+    } else {
+        return response.json('Inserir um valor para o código da disciplina!');
+    }
+});
+
+// Nome da DISCIPLINA //
+router.put('/disciplinas/updateNome/:disciplina_id', loginAuth, async (request, response) => {
+    var { disciplina_id } = request.params;
+    var { disciplina_nome } = request.body;
+
+    var userId = request.session.user.id;
+
+    var idString = JSON.stringify(userId);
+
+    if (isNaN(disciplina_id)) {
+        return response.json('O ID da disciplina precisa ser um numeral!');
+    } 
+
+    var disciplinaId = await database('disciplinas')
+                                .where('disciplina_id', disciplina_id)    
+                                .andWhere('disciplina_professor', idString)
+                                    .first('disciplina_id');
+
+    if (disciplinaId == null) {
+        return response.json('O ID da disciplina não existe!');
+    }
+
+    if (disciplina_nome != '') {
+        var result = await database('disciplinas')
+                            .where('disciplina_id', disciplina_id)
+                            .andWhere('disciplina_professor', idString)
+                                .update({
+                                    disciplina_nome: disciplina_nome,
+                                });
+            
+        if (result) {
+            return response.json('Nome da disciplina atualizado');
+        } else {
+            return response.json('Erro ao atualizar nome da disciplina!');
+        } 
+    } else {
+        return response.json('Inserir um valor para o nome da disciplina!');
+    }
+});
 
 router.delete('/disciplinas/delete/:disciplina_id', loginAuth, async (request, response) => {
     var { disciplina_id } = request.params;

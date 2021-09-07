@@ -57,36 +57,98 @@ router.get('/cursos', loginAuth, async (request, response) => {
     }
 });
 
-// router.put('/cursos/update/:curso_id', loginAuth, async (request, response) => {
-//     var { curso_id } = request.params;
-//     var { curso_codigo, curso_nome } = request.body;
+// Código do CURSO //
+router.put('/cursos/updateCodigo/:curso_id', loginAuth, async (request, response) => {
+    var { curso_id } = request.params;
+    var { curso_codigo } = request.body;
 
-//     var userId = request.session.user.id;
+    var userId = request.session.user.id;
 
-//     var idString = JSON.stringify(userId);
+    var idString = JSON.stringify(userId);
 
-//     if (isNaN(curso_id)) {
-//         return response.json('O ID do curso precisa ser um numeral!');
-//     } 
+    if (isNaN(curso_id)) {
+        return response.json('O ID do curso precisa ser um numeral!');
+    } 
     
-//     if (isNaN(curso_codigo)) {
-//         return response.json('O código do curso precisa ser um numeral!');
-//     }
+    if (isNaN(curso_codigo)) {
+        return response.json('O código do curso precisa ser um numeral!');
+    }
 
-//     var result = await database('cursos')
-//                         .where('curso_id', curso_id)
-//                         .andWhere('curso_professor', idString)
-//                             .update({
-//                                 curso_codigo: curso_codigo,
-//                                 curso_nome: curso_nome,
-//                             });
+    var cursoId = await database('cursos')
+                            .where('curso_id', curso_id)    
+                            .andWhere('curso_professor', idString)
+                                .first('curso_id');
+                                
+    if (cursoId == null) {
+        return response.json('O ID do curso não existe!');
+    }
 
-//     if (result) {
-//         return response.json('Curso atualizado');
-//     } else {
-//         return response.json('Erro ao atualizar curso!');
-//     }
-// });
+    var cursoCodigo = await database('cursos')
+                                .where('curso_codigo', curso_codigo)
+                                .andWhere('curso_professor', idString)
+                                    .first('curso_codigo');
+
+    if (curso_codigo != '') {
+        if (cursoCodigo == null) {
+            var result = await database('cursos')
+                                .where('curso_id', curso_id)
+                                .andWhere('curso_professor', idString)
+                                    .update({
+                                        curso_codigo: curso_codigo,
+                                    });
+            
+            if (result) {
+                return response.json('Código do curso atualizado');
+            } else {
+                return response.json('Erro ao atualizar código do curso!');
+            } 
+        } else {
+            return response.json('Código do curso já está registrado!');
+        }
+    } else {
+        return response.json('Inserir um valor para o código do curso!');
+    }
+});
+
+// Nome do CURSO //
+router.put('/cursos/updateNome/:curso_id', loginAuth, async (request, response) => {
+    var { curso_id } = request.params;
+    var { curso_nome } = request.body;
+
+    var userId = request.session.user.id;
+
+    var idString = JSON.stringify(userId);
+
+    if (isNaN(curso_id)) {
+        return response.json('O ID do curso precisa ser um numeral!');
+    } 
+
+    var cursoId = await database('cursos')
+                            .where('curso_id', curso_id)    
+                            .andWhere('curso_professor', idString)
+                                .first('curso_id');
+
+    if (cursoId == null) {
+        return response.json('O ID do curso não existe!');
+    }
+
+    if (curso_nome != '') {
+        var result = await database('cursos')
+                            .where('curso_id', curso_id)
+                            .andWhere('curso_professor', idString)
+                                .update({
+                                    curso_nome: curso_nome,
+                                });
+            
+        if (result) {
+            return response.json('Nome do curso atualizado');
+        } else {
+            return response.json('Erro ao atualizar nome do curso!');
+        } 
+    } else {
+        return response.json('Inserir um valor para o nome do curso!');
+    }
+});
 
 router.delete('/cursos/delete/:curso_id', loginAuth, async (request, response) => {
     var { curso_id } = request.params;
@@ -98,6 +160,15 @@ router.delete('/cursos/delete/:curso_id', loginAuth, async (request, response) =
     if (isNaN(curso_id)) {
         return response.json('O ID do curso precisa ser um numeral!');
     }
+
+    var cursoId = await database('cursos')
+                            .where('curso_id', curso_id)    
+                            .andWhere('curso_professor', idString)
+                                .first('curso_id');
+
+    if (cursoId == null) {
+        return response.json('O ID do curso não existe!');
+    }                                
 
     var result = await database('cursos')
                         .where('curso_id', curso_id)
