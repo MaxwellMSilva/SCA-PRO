@@ -26,7 +26,7 @@ router.post('/cadastro', async (request, response) => {
     }
 });
 
-router.post('/login', async (request, response) => {
+router.get('/login', async (request, response) => {
     var { professor_email, professor_senha } = request.body;
 
     try {
@@ -56,6 +56,11 @@ router.post('/login', async (request, response) => {
     } catch {
         return response.json('ERRO INTERNO!!!');
     }
+});
+
+router.get('/logout', async (request, response) => {
+    request.session.user = undefined;
+    return response.json('Logout realizado!');
 });
 
 module.exports = router;
